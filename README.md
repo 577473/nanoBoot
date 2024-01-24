@@ -23,10 +23,13 @@ The current version (commit #[d0ea26b](https://github.com/volium/nanoBoot/commit
 `BOOTLOADER_SIZE = 512`
 7. compile the firmware. This is not for this repo, but I'll add it for documentation purposes (my own good) . In QMK_SYS console:   
 `make klor:vial`
-8. upload the compiled keyboard firmware using the hardware programmer:   
+8. - upload the compiled keyboard firmware using the hardware programmer:   
 `avrdude -b 19200 -c arduino_as_isp -p m32u4 -v -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -P COM10`     
 `avrdude -b 19200 -c arduino_as_isp -p m32u4 -v -e -U flash:w:klor_vial.hex -U lock:w:0x0F:m -P COM10`   
 The -c parameter is your programmer, arduino uno with ISP sketch, you can find the list with `avrdude -c ?`. The target board is specified with the -p paramenter. You can list the valid parameters with `avrdude -p ?`
+   - alternative working with bootloader+firmware HEX:
+   `avrdude -b 19200 -c arduino_as_isp -p m32u4 -P COM10 -U flash:w:"klor_vial_production.hex":a -U lfuse:w:0x5E:m -U hfuse:w:0xD9:m -U efuse:w:0xC3:m -U lock:w:0x3F:m ` 
+
 ## HW assumptions:
 
 * CLK is 16 MHz Crystal and fuses are setup correctly to support it:
