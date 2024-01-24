@@ -10,6 +10,23 @@ It's very likely that a few sections can be rewritten to make it even smaller, a
 
 The current version (commit #[d0ea26b](https://github.com/volium/nanoBoot/commit/d0ea26bb01e764340dc8ad7b473ad98cefdb52eb)) is supported as-is in the 'hid_bootloader_loader.py' script that ships with [LUFA-151115](https://github.com/abcminiuser/lufa/releases/tag/LUFA-151115), and is exactly 506 bytes long.
 
+## TL;DR WINDOWS
+
+1. in build.zip there are the compiled files. the .hex is what you need
+2. download avrdude (software to program the dev boards like arduinos)
+3. (you'll have to look elsewhere how to program an arduino using a hardware programmer, I used an Arduino Uno to program a pro micro clone)
+4. flash the nanoBoot bootloader   
+`avrdude.exe -p atmega32u4 -c stk500v1 -b 19200 -U flash:w:"nanoBoot.hex":i -P COM10 -U efuse:w:0xC3:m -U hfuse:w:0xD9:m -U lock:w:0x3F:m`
+5. Since it didn't recognize it on my machine and couldn't use qmk_toolbox , I had to flash the keyboard firmware (that's what i'm using this for) with avrdude and the hardware programmer
+6. had to add/replace this on the rules.mk for the keyboard   
+`BOOTLOADER = qmk-hid`   
+`BOOTLOADER_SIZE = 512`
+7. compile the firmware. This is not for this repo, but I'll add it for documentation purposes (my own good) . In QMK_SYS console:   
+`make klor:vial`
+8. upload the compiled keyboard firmware using the hardware programmer:   
+`avrdude -b 19200 -c arduino_as_isp -p m32u4 -v -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -P COM10`     
+`avrdude -b 19200 -c arduino_as_isp -p m32u4 -v -e -U flash:w:klor_vial.hex -U lock:w:0x0F:m -P COM10`   
+The -c parameter is your programmer, arduino uno with ISP sketch, you can find the list with `avrdude -c ?`. The target board is specified with the -p paramenter. You can list the valid parameters with `avrdude -p ?`
 ## HW assumptions:
 
 * CLK is 16 MHz Crystal and fuses are setup correctly to support it:
@@ -60,3 +77,4 @@ The documentation is part of the source code itself, and even though some people
         - Install avrdude to be able to flash the device:
             
             `brew install avrdude`
+
